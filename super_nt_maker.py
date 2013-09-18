@@ -16,7 +16,8 @@ OPTIONS = {'desired_distributions' :   (True, 'A file which gives the desired de
            'objective_function':       (False, 'The objective function to minimize.', '4'),
            'num_threads':              (False, 'The number of threads to launch.', 4),
            'output_dir':               (True,  'The name of a dir to place the output html and images.'),
-           'aaLimits':                 (False,  'Any limits on the percentage of certain AA\'s?','Stop:0.1')
+           'aaLimits':                 (False,  'Any limits on the percentage of certain AA\'s?','Stop:0.1'),
+           'num_super_nts':            (False,  'The number of Super Nucleotides to use.', 4)
            }
                       
 NUCLEOTIDES = ['A', 'C', 'T', 'G']
@@ -241,11 +242,11 @@ def load_desired_distributions(distFile):
     
     return dists
 
-def get_random_vats():
+def get_random_vats(numSuperNucleotides):
     '''This function will simply create four sets of super-nucleotides, each
     composed of a random percentage of A, C, T, and G.'''
     vats = []
-    for i in range(4):
+    for i in range(numSuperNucleotides):
         currVat = numpy.random.random(4)
         currVat = currVat / sum(currVat)
         vats += list(currVat[0:3])
@@ -329,13 +330,9 @@ def make_plots(bestDistributionFits, outputDir):
         pyplot.savefig(os.path.join(outputDir, dists['title'] + '.png'), dpi=100)
         
 ################################################################################
-def get_initial_vats(num_attempts):
-    # One guess will start with 0.7 for one NT, and 0.1 for the rest.
-    # This is the soft mutagenesis that Genetech uses.
-    initial_vats = [[0.7, 0.1, 0.1, 0.1, 0.7, 0.1, 0.1, 0.1, 0.7, 0.1, 0.1, 0.1]]
-    
-    for i in range(num_attempts-1):
-        initial_vats += [get_random_vats()]
+def get_initial_vats(num_attempts, numSuperNucleotides):
+    for i in range(num_attempts):
+        initial_vats += [get_random_vats(numSuperNucleotides)]
     
     return initial_vats
     
@@ -426,13 +423,13 @@ def get_aa_limits(aaLimitsStr):
     return aaLimits
 
 ################################################################################
-def run(desiredDistributionsFN, outputDir, objectiveFunction='4', numThreads=8, aaLimitsStr='Stop:0.1'):
+def run(desiredDistributionsFN, outputDir, objectiveFunction='4', numThreads=8, aaLimitsStr='Stop:0.1', numSuperNucleotides=4):
     desiredDistributions = load_desired_distributions(desiredDistributionsFN)
     aaLimits = get_aa_limits(aaLimitsStr)
     
     pool = multiprocessing.Pool()
     results = []
-    initial_vats = get_initial_vats(numThreads)
+    initial_vats = get_initial_vats(numThreads, numSuperNucleotides)
     #optimize_supernts(desiredDistributions, aaLimits, objectiveFunction, initial_vats[0])
     for initial_vat in initial_vats:
         results += [pool.apply_async(optimize_supernts, args=(desiredDistributions, aaLimits, objectiveFunction, initial_vat))]
@@ -457,5 +454,5 @@ if __name__ == '__main__':
     if(args['num_threads'] > MAX_NUM_THREADS):
         args['num_threads'] = MAX_NUM_THREADS
 
-    run(args['desired_distributions'], args['output_dir'], args['objective_function'], args['num_threads'], args['aaLimits'])
+    run(args['desired_distributions'], args['output_dir'], args['objective_function'], args['num_threads'], args['aaLimits'], args['num_super_nts'])
     
