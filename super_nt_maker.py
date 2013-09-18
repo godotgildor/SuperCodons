@@ -330,11 +330,35 @@ def make_plots(bestDistributionFits, outputDir):
         pyplot.savefig(os.path.join(outputDir, dists['title'] + '.png'), dpi=100)
         
 ################################################################################
+def seed_vats(vats):
+    '''This function will replace up to the first four super Nucleotides
+       in this set of vats with mixtures giving one nucleotide a clear 
+       preference over the others.  We'll use 0.7 for the majority nucleotide
+       similar to what JT said Genentech had proposed.'''
+    # Each Super NT only keeps track of 3 NT's, as the 4th is just 1-sum
+    numSuperNts = len(vats)/3
+    numSuperNtsToModify = min(4,numSuperNts)
+    newVats = []
+    for i in range(numSuperNtsToModify):
+        currSuperNt = [0.1, 0.1, 0.1]
+        if(i < 3):
+            currSuperNt[i] = 0.7
+        newVats += currSuperNt
+    newVats += vats[numSuperNtsToModify*3:]
+    
+    return newVats
+    
+################################################################################
 def get_initial_vats(num_attempts, numSuperNucleotides):
+    initial_vats = []
     for i in range(num_attempts):
         initial_vats += [get_random_vats(numSuperNucleotides)]
     
-    return initial_vats
+    # Modify the first vat so that it gives a clear preference to 
+    # one of the nucleotides in each Super NT.
+    new_vats = seed_vats(initial_vats[0])
+    
+    return ([new_vats] + initial_vats[1:])
     
 
 ################################################################################
@@ -353,42 +377,18 @@ def print_results(bestResult, bestDistributionFits, outputDir):
     of.write('            </tr>\n')
     of.write('          </thead>\n')
     of.write('          <tbody>\n')
-    of.write('            <tr class="success">\n')
-    of.write('              <td>0</td>\n')
-    total = 0
-    for v in bestResult[0:3]:
-        v = int(100*v)
-        total += v
-        of.write('              <td>' + str(v) + '%</td>\n')
-    of.write('              <td>' + str(100-total) + '%</td>\n')
-    of.write('            </tr>\n')
-    of.write('            <tr class="error">\n')
-    of.write('              <td>1</td>\n')
-    total = 0
-    for v in bestResult[3:6]:
-        v = int(100*v)
-        total += v
-        of.write('              <td>' + str(v) + '%</td>\n')
-    of.write('              <td>' + str(100-total) + '%</td>\n')
-    of.write('            </tr>\n')
-    of.write('            <tr class="warning">\n')
-    of.write('              <td>2</td>\n')
-    total = 0
-    for v in bestResult[6:9]:
-        v = int(100*v)
-        total += v
-        of.write('              <td>' + str(v) + '%</td>\n')
-    of.write('              <td>' + str(100-total) + '%</td>\n')
-    of.write('            </tr>\n')
-    of.write('            <tr class="info">\n')
-    of.write('              <td>3</td>\n')
-    total = 0
-    for v in bestResult[9:12]:
-        v = int(100*v)
-        total += v
-        of.write('              <td>' + str(v) + '%</td>\n')
-    of.write('              <td>' + str(100-total) + '%</td>\n')
-    of.write('            </tr>\n')
+    colors = ['success', 'error', 'warning', 'info']
+    for i in range(len(bestResult)/4):
+        of.write('            <tr class="%s">\n' % (colors[i%4]))
+        of.write('              <td>%d</td>\n' % (i))
+        total = 0
+        currNts = bestResult[(i*4):((i+1)*4]
+        for v in currNts[0:-1]:
+            v = int(100*v)
+            total += v
+            of.write('              <td>' + str(v) + '%</td>\n')
+        of.write('              <td>' + str(100-total) + '%</td>\n')
+        of.write('            </tr>\n')
     of.write('          </tbody>\n')
     of.write('        </table></br>\n')
     for dist in bestDistributionFits['matches']:
