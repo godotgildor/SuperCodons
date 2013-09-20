@@ -385,7 +385,7 @@ def print_results(bestResult, bestDistributionFits, outputDir):
         of.write('            <tr class="%s">\n' % (colors[i%4]))
         of.write('              <td>%d</td>\n' % (i))
         total = 0
-        currNts = bestResult[(i*4):((i+1)*4]
+        currNts = bestResult[(i*4):((i+1)*4)]
         for v in currNts[0:-1]:
             v = int(100*v)
             total += v
