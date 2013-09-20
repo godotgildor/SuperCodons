@@ -386,7 +386,7 @@ def print_results(bestResult, bestDistributionFits, outputDir):
         of.write('              <td>%d</td>\n' % (i))
         total = 0
         currNts = bestResult[(i*3):((i+1)*3)]
-        for v in currNts[0:-1]:
+        for v in currNts:
             v = int(100*v)
             total += v
             of.write('              <td>' + str(v) + '%</td>\n')
