@@ -457,5 +457,5 @@ if __name__ == '__main__':
     if(args['num_threads'] > MAX_NUM_THREADS):
         args['num_threads'] = MAX_NUM_THREADS
 
-    run(args['desired_distributions'], args['output_dir'], args['objective_function'], int(args['num_threads']), args['aa_limits'], int(args['num_super_nts'])
+    run(args['desired_distributions'], args['output_dir'], args['objective_function'], int(args['num_threads']), args['aa_limits'], int(args['num_super_nts']))
     
