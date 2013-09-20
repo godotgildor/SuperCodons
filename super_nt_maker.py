@@ -284,13 +284,16 @@ def get_obj_fun(objFunName):
     
     return indiv_obj_fun
 
+def make_constraint(i):
+    return lambda x: numpy.array([1 - (x[i*3] + x[i*3+1] + x[i*3+2])])
+
 def optimize_supernts(desiredDistributions, aaLimits, whichObjFun, initial_guess, numSuperNucleotides):
     myBounds = []
     myConstraints = []
     for i in range(numSuperNucleotides):
         myBounds += [(0.0, 1.0), (0.0, 1.0), (0.0, 1.0)]
         myConstraints += [{'type': 'ineq',
-                           'fun' : lambda x: numpy.array([1 - (x[i*3] + x[i*3+1] + x[i*3+2])])}]
+                           'fun' : make_constraint(i)}]
     myConstraints = tuple(myConstraints)
     
     indiv_obj_fun = get_obj_fun(whichObjFun)
