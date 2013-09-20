@@ -284,22 +284,15 @@ def get_obj_fun(objFunName):
     
     return indiv_obj_fun
 
-def optimize_supernts(desiredDistributions, aaLimits, whichObjFun, initial_guess):
-    myBounds = [(0.0, 1.0), (0.0, 1.0), (0.0, 1.0),
-                (0.0, 1.0), (0.0, 1.0), (0.0, 1.0),
-                (0.0, 1.0), (0.0, 1.0), (0.0, 1.0),
-                (0.0, 1.0), (0.0, 1.0), (0.0, 1.0),]
-                
-    myConstraints = ({'type': 'ineq',
-                      'fun' : lambda x: numpy.array([1 - (x[0] + x[1] + x[2])])},
-                     {'type': 'ineq',
-                      'fun' : lambda x: numpy.array([1 - (x[3] + x[4] + x[5])])},
-                     {'type': 'ineq',
-                      'fun' : lambda x: numpy.array([1 - (x[6] + x[7] + x[8])])},
-                     {'type': 'ineq',
-                      'fun' : lambda x: numpy.array([1 - (x[9] + x[10] + x[11])])},
-                     )
-
+def optimize_supernts(desiredDistributions, aaLimits, whichObjFun, initial_guess, numSuperNucleotides):
+    myBounds = []
+    myContraints = []
+    for i in range(numSuperNucleotides):
+        myBounds += [(0.0, 1.0), (0.0, 1.0), (0.0, 1.0)]
+        myConstraints += [{'type': 'ineq',
+                           'fun' : lambda x: numpy.array([1 - (x[i*3] + x[i*3+1] + x[i*3+2])])}]
+    myConstraints = tuple(myConstraints)
+    
     indiv_obj_fun = get_obj_fun(whichObjFun)
                      
     objFun = lambda x: find_best_dist_fits(x, desiredDistributions, 
@@ -433,9 +426,9 @@ def run(desiredDistributionsFN, outputDir, objectiveFunction='4', numThreads=8, 
     pool = multiprocessing.Pool()
     results = []
     initial_vats = get_initial_vats(numThreads, numSuperNucleotides)
-    #optimize_supernts(desiredDistributions, aaLimits, objectiveFunction, initial_vats[0])
+    #results = [optimize_supernts(desiredDistributions, aaLimits, objectiveFunction, initial_vats[0])]
     for initial_vat in initial_vats:
-        results += [pool.apply_async(optimize_supernts, args=(desiredDistributions, aaLimits, objectiveFunction, initial_vat))]
+        results += [pool.apply_async(optimize_supernts, args=(desiredDistributions, aaLimits, objectiveFunction, initial_vat, numSuperNucleotides))]
     
     pool.close()
     pool.join()
