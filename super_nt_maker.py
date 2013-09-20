@@ -286,7 +286,7 @@ def get_obj_fun(objFunName):
 
 def optimize_supernts(desiredDistributions, aaLimits, whichObjFun, initial_guess, numSuperNucleotides):
     myBounds = []
-    myContraints = []
+    myConstraints = []
     for i in range(numSuperNucleotides):
         myBounds += [(0.0, 1.0), (0.0, 1.0), (0.0, 1.0)]
         myConstraints += [{'type': 'ineq',
