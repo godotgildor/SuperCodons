@@ -381,11 +381,11 @@ def print_results(bestResult, bestDistributionFits, outputDir):
     of.write('          </thead>\n')
     of.write('          <tbody>\n')
     colors = ['success', 'error', 'warning', 'info']
-    for i in range(len(bestResult)/4):
+    for i in range(len(bestResult)/3):
         of.write('            <tr class="%s">\n' % (colors[i%4]))
         of.write('              <td>%d</td>\n' % (i))
         total = 0
-        currNts = bestResult[(i*4):((i+1)*4)]
+        currNts = bestResult[(i*3):((i+1)*3)]
         for v in currNts[0:-1]:
             v = int(100*v)
             total += v
