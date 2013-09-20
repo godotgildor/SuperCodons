@@ -16,13 +16,14 @@ OPTIONS = {'desired_distributions' :   (True, 'A file which gives the desired de
            'objective_function':       (False, 'The objective function to minimize.', '4'),
            'num_threads':              (False, 'The number of threads to launch.', 4),
            'output_dir':               (True,  'The name of a dir to place the output html and images.'),
-           'aaLimits':                 (False,  'Any limits on the percentage of certain AA\'s?','Stop:0.1'),
+           'aa_limits':                (False,  'Any limits on the percentage of certain AA\'s?','Stop:0.1'),
            'num_super_nts':            (False,  'The number of Super Nucleotides to use.', 4)
            }
                       
 NUCLEOTIDES = ['A', 'C', 'T', 'G']
 
 MAX_NUM_THREADS = 128
+STOP_PENALTY = 2.0
 
 CODON_TABLE = { 'TTT': 'F', 'TTC': 'F', 'TTA': 'L', 'TTG': 'L',
                 'CTT': 'L', 'CTC': 'L', 'CTA': 'L', 'CTG': 'L',
@@ -55,7 +56,9 @@ def calc_wei_wang_obj_fun_4(desiredDist, actualDist):
     p = desiredDist[0:21]
     q = actualDist[0:21]
     
-    val = numpy.sum(numpy.subtract(1, numpy.cos((p-q)*numpy.pi)))
+    val = numpy.subtract(1, numpy.cos((p-q)*numpy.pi))
+    val[superCodonTools.AA_ORDER_DICT['Stop']] *= STOP_PENALTY
+    val = numpy.sum(val)
     
     return val
 
@@ -454,5 +457,5 @@ if __name__ == '__main__':
     if(args['num_threads'] > MAX_NUM_THREADS):
         args['num_threads'] = MAX_NUM_THREADS
 
-    run(args['desired_distributions'], args['output_dir'], args['objective_function'], args['num_threads'], args['aaLimits'], args['num_super_nts'])
+    run(args['desired_distributions'], args['output_dir'], args['objective_function'], args['num_threads'], args['aa_limits'], args['num_super_nts'])
     
