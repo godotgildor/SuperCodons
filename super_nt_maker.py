@@ -361,7 +361,52 @@ def get_initial_vats(num_attempts, numSuperNucleotides):
     
 
 ################################################################################
-def print_results(bestResult, bestDistributionFits, outputDir):
+def print_csv_results(bestResult, bestDistributionFits, outputDir):
+    ofn = os.path.join(outputDir, 'results.csv')
+    of = open(ofn, 'w')
+    
+    # First, write the Super Nucleotide Info
+    of.write('Super Nucleotide Number')
+    for nt in NUCLEOTIDES:
+        of.write(',' + nt)
+    of.write('\n')
+    for i in range(len(bestResult)/3):
+        of.write(str(i))
+        total = 0
+        currNts = bestResult[(i*3):((i+1)*3)]
+        for v in currNts:
+            v = int(100*v)
+            total += v
+            of.write(',' + str(v))
+        of.write(',' + str(100-total) + '\n')
+    of.write('\n')
+    
+    # Now write the Distribution Info.
+    of.write('Target Distributions\n')
+    for dists in bestDistributionFits:
+        of.write('Distribution Name')
+        for aa in superCodonTools.DEFAULT_AA_ORDER:
+            of.write(',' + aa)
+        of.write('\n')
+        of.write(dists['title'])
+        for val in dists['desiredDistribution']:
+            of.write(',' + str(val))
+        of.write('\n')
+        
+    of.write('\nCalculated Distributions\n')
+    for dists in bestDistributionFits:
+        of.write('Distribution Name')
+        for aa in superCodonTools.DEFAULT_AA_ORDER:
+            of.write(',' + aa)
+        of.write('\n')
+        of.write(dists['title'])
+        for val in dists['calcDistribution']:
+            of.write(',' + str(val))
+    of.close()
+        
+
+################################################################################
+def print_html_results(bestResult, bestDistributionFits, outputDir):
     ofn = os.path.join(outputDir, 'index.html')
     of = open(ofn, 'w')
     of.write(superCodonTools.HTML_PREFIX + '\n')
@@ -404,6 +449,7 @@ def print_results(bestResult, bestDistributionFits, outputDir):
         of.write('        <img src="' + dist['title'] + '.png"/>\n')
         of.write('      </div>\n')
     of.write('      </div>\n')
+    of.write('      <a href=results.csv>Results File</a>\n')
     of.write(superCodonTools.HTML_SUFFIX + '\n')
 
 ################################################################################
@@ -422,7 +468,7 @@ def get_aa_limits(aaLimitsStr):
     return aaLimits
 
 ################################################################################
-def run(desiredDistributionsFN, outputDir, objectiveFunction='4', numThreads=8, aaLimitsStr='Stop:0.1', numSuperNucleotides=4):
+def run(desiredDistributionsFN, outputDir, objectiveFunction='4', numThreads=8, aaLimitsStr='Stop:0.1', numSuperNucleotides=4, printHTML=True):
     desiredDistributions = load_desired_distributions(desiredDistributionsFN)
     aaLimits = get_aa_limits(aaLimitsStr)
     
@@ -443,7 +489,9 @@ def run(desiredDistributionsFN, outputDir, objectiveFunction='4', numThreads=8, 
                                                indiv_obj_fun, False)
 
     make_plots(bestDistributionFits, outputDir)
-    print_results(bestResult, bestDistributionFits, outputDir)
+    print_csv_results(bestResult, bestDistributionFits, outputDir)
+    if(printHTML):
+        print_html_results(bestResult, bestDistributionFits, outputDir)
     
 
 ################################################################################
@@ -453,5 +501,5 @@ if __name__ == '__main__':
     if(args['num_threads'] > MAX_NUM_THREADS):
         args['num_threads'] = MAX_NUM_THREADS
 
-    run(args['desired_distributions'], args['output_dir'], args['objective_function'], int(args['num_threads']), args['aa_limits'], int(args['num_super_nts']))
+    run(args['desired_distributions'], args['output_dir'], args['objective_function'], int(args['num_threads']), args['aa_limits'], int(args['num_super_nts']), printHTML=False)
     
