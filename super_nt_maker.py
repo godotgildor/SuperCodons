@@ -383,7 +383,7 @@ def print_csv_results(bestResult, bestDistributionFits, outputDir):
     
     # Now write the Distribution Info.
     of.write('Target Distributions\n')
-    for dists in bestDistributionFits:
+    for dists in bestDistributionFits['matches']:
         of.write('Distribution Name')
         for aa in superCodonTools.DEFAULT_AA_ORDER:
             of.write(',' + aa)
@@ -394,7 +394,7 @@ def print_csv_results(bestResult, bestDistributionFits, outputDir):
         of.write('\n')
         
     of.write('\nCalculated Distributions\n')
-    for dists in bestDistributionFits:
+    for dists in bestDistributionFits['matches']:
         of.write('Distribution Name')
         for aa in superCodonTools.DEFAULT_AA_ORDER:
             of.write(',' + aa)
