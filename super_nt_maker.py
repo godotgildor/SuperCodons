@@ -20,7 +20,8 @@ OPTIONS = {'desired_distributions' :   (True, 'A file which gives the desired de
            'num_super_nts':            (False,  'The number of Super Nucleotides to use.', 4)
            }
                       
-NUCLEOTIDES = ['A', 'C', 'T', 'G']
+#NUCLEOTIDES = ['A', 'C', 'T', 'G']
+NUCLEOTIDES = ['A', 'C', 'G', 'T']
 
 MAX_NUM_THREADS = 128
 STOP_PENALTY = 2.0
@@ -369,39 +370,43 @@ def print_csv_results(bestResult, bestDistributionFits, outputDir):
     of.write('Super Nucleotide Number')
     for nt in NUCLEOTIDES:
         of.write(',' + nt)
-    of.write('\n')
+    of.write(',IDT Code\n')
     for i in range(len(bestResult)/3):
         of.write(str(i))
         total = 0
+        idtCode = ''
         currNts = bestResult[(i*3):((i+1)*3)]
         for v in currNts:
             v = int(100*v)
             total += v
+            idtCode += '%02d' % (v)
             of.write(',' + str(v))
-        of.write(',' + str(100-total) + '\n')
+        v = 100 - total
+        of.write(',' + str(v))
+        idtCode += '%02d' % (v)
+        of.write(',(' + idtCode + ')\n')
     of.write('\n')
     
     # Now write the Distribution Info.
-    of.write('Target Distributions\n')
+    of.write('Target Distributions\nDistribution Name')
+    for aa in superCodonTools.DEFAULT_AA_ORDER:
+        of.write(',' + aa)
+    of.write('\n')
     for dists in bestDistributionFits['matches']:
-        of.write('Distribution Name')
-        for aa in superCodonTools.DEFAULT_AA_ORDER:
-            of.write(',' + aa)
-        of.write('\n')
         of.write(dists['title'])
         for val in dists['desiredDistribution']:
             of.write(',' + str(val))
         of.write('\n')
         
-    of.write('\nCalculated Distributions\n')
+    of.write('\nCalculated Distributions\nDistribution Name')
+    for aa in superCodonTools.DEFAULT_AA_ORDER:
+        of.write(',' + aa)
+    of.write('\n')
     for dists in bestDistributionFits['matches']:
-        of.write('Distribution Name')
-        for aa in superCodonTools.DEFAULT_AA_ORDER:
-            of.write(',' + aa)
-        of.write('\n')
         of.write(dists['title'])
         for val in dists['calcDistribution']:
             of.write(',' + str(val))
+        of.write('\n')
     of.close()
         
 
