@@ -10,6 +10,7 @@ import tempfile
 import cPickle
 
 AB_PICKLE_FILE = './ab_dists.pickle'
+ABYSIS_CREDIT = 'Antibody distributions from <a href="http://www.bioinf.org.uk/abysis/">abYsis</a>'
 
 ################################################################################
 def check_and_parse_input_args(form, distributions):
@@ -70,7 +71,7 @@ if __name__ == '__main__':
     outputDir = tempfile.mkdtemp(prefix = superCodonTools.OUT_DIR_PREFIX, dir=superCodonTools.RESULTS_DIR)
     ofn = os.path.join(outputDir, superCodonTools.DIST_FILE)
     write_distributions(ofn, dists)
-    
-    super_nt_maker.run(ofn, outputDir, objectiveFunction='4', numThreads=7, aaLimitsStr='Stop:0.1')
+
+    super_nt_maker.run(ofn, outputDir, objectiveFunction='4', numThreads=7, aaLimitsStr='Stop:0.1', extraComment=ABYSIS_CREDIT)
     ofn = os.path.join('../', 'results', os.path.split(outputDir)[-1], 'index.html')
     print superCodonTools.REDIRECT_CODE % (ofn, ofn, ofn)

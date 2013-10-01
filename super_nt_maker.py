@@ -311,7 +311,7 @@ def optimize_supernts(desiredDistributions, aaLimits, whichObjFun, initial_guess
 def make_plots(bestDistributionFits, outputDir):
     for dists in bestDistributionFits['matches']:
         calcDist = 100.0*dists['calcDistribution']
-        # Note that the mismatch in the deisred vs. calc below is on purpose
+        # Note that the mismatch in the desired vs. calc below is on purpose
         # so that we make sure that both dists use the same list of aa in same order.
         desiredDist = 100.0*dists['desiredDistribution']
         
@@ -362,7 +362,7 @@ def get_initial_vats(num_attempts, numSuperNucleotides):
     
 
 ################################################################################
-def print_csv_results(bestResult, bestDistributionFits, outputDir):
+def print_csv_results(bestResult, bestDistributionFits, extraComment, outputDir):
     ofn = os.path.join(outputDir, 'results.csv')
     of = open(ofn, 'w')
     
@@ -386,6 +386,9 @@ def print_csv_results(bestResult, bestDistributionFits, outputDir):
         idtCode += '%02d' % (v)
         of.write(',(' + idtCode + ')\n')
     of.write('\n')
+
+    if(extraComment != ''):
+        of.write(extraComment + '\n\n')
     
     # Now write the Distribution Info.
     of.write('Target Distributions\nDistribution Name')
@@ -411,7 +414,7 @@ def print_csv_results(bestResult, bestDistributionFits, outputDir):
         
 
 ################################################################################
-def print_html_results(bestResult, bestDistributionFits, outputDir):
+def print_html_results(bestResult, bestDistributionFits, extraComment, outputDir):
     ofn = os.path.join(outputDir, 'index.html')
     of = open(ofn, 'w')
     of.write(superCodonTools.HTML_PREFIX + '\n')
@@ -440,6 +443,10 @@ def print_html_results(bestResult, bestDistributionFits, outputDir):
         of.write('            </tr>\n')
     of.write('          </tbody>\n')
     of.write('        </table></br>\n')
+    if(extraComment != ''):
+        of.write('      <div class="row">\n')
+        of.write('        <h4>' + extraComment + '</h4>\n')
+        of.write('      </div>\n')
     for dist in bestDistributionFits['matches']:
         of.write('      <div class="row">\n')
         of.write('        <div class="span12">\n')
@@ -473,7 +480,7 @@ def get_aa_limits(aaLimitsStr):
     return aaLimits
 
 ################################################################################
-def run(desiredDistributionsFN, outputDir, objectiveFunction='4', numThreads=8, aaLimitsStr='Stop:0.1', numSuperNucleotides=4, printHTML=True):
+def run(desiredDistributionsFN, outputDir, objectiveFunction='4', numThreads=8, aaLimitsStr='Stop:0.1', numSuperNucleotides=4, printHTML=True, extraComment=''):
     desiredDistributions = load_desired_distributions(desiredDistributionsFN)
     aaLimits = get_aa_limits(aaLimitsStr)
     
@@ -494,9 +501,9 @@ def run(desiredDistributionsFN, outputDir, objectiveFunction='4', numThreads=8, 
                                                indiv_obj_fun, False)
 
     make_plots(bestDistributionFits, outputDir)
-    print_csv_results(bestResult, bestDistributionFits, outputDir)
+    print_csv_results(bestResult, bestDistributionFits, extraComment, outputDir)
     if(printHTML):
-        print_html_results(bestResult, bestDistributionFits, outputDir)
+        print_html_results(bestResult, bestDistributionFits, extraComment, outputDir)
     
 
 ################################################################################
