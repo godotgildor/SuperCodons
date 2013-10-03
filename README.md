@@ -2,7 +2,7 @@ SuperCodons
 ===========
 
 Super Codons
-Please see supercodons.degradolab.org for a description of this software.
+Please see http://supercodons.degradolab.org for a description of this software.
 
 Run
 python super_nt_maker.py
